@@ -1,11 +1,15 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\v1;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Post;
+use App\Http\Requests\v1\StoreUserRequest;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
-class PostsController extends Controller
+class UsersController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -15,8 +19,8 @@ class PostsController extends Controller
     public function index()
     {
         //
-        $posts= Post::all(); 
-        return $posts;
+        $users= User::all(); 
+        return $users;
     }
 
     /**
@@ -26,7 +30,8 @@ class PostsController extends Controller
      */
     public function create()
     {
-        return view('posts.create');
+        //
+
     }
 
     /**
@@ -35,10 +40,33 @@ class PostsController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(StoreUserRequest $request)
     {
-       Post::create($request->all()); 
-       return redirect('posts');
+        $credentials = [
+            'name'=>$request->name,
+            'email'=>$request->email,
+            'password'=>$request->password
+        ];
+        if(!Auth::attempt($credentials)) {
+            $user = new User();
+    
+            $user->name=$request['name'];
+            $user->email = $request['email'];
+            $user->password= Hash::make($request['password']);  
+             
+            $user->save();
+    
+            if(Auth::attempt($credentials)) {
+                $user = Auth::user();    
+                $userToken = $user->createToken('admin-token', ['create', 'update', 'delete']);    
+                return [
+                    'user' => $userToken->plainTextToken,
+                    'userId' => $user->id
+                ];
+            }
+        }
+
+        
     }
 
     /**
@@ -47,11 +75,10 @@ class PostsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(User $user)
     {
         //
-        $post= Post::findOrFail($id); 
-        return $post;
+        return $user;
     }
 
     /**
@@ -63,8 +90,6 @@ class PostsController extends Controller
     public function edit($id)
     {
         //
-        $post = Post::findOrFail($id);
-        return view('posts.edit', compact('post'));
     }
 
     /**
@@ -76,16 +101,9 @@ class PostsController extends Controller
      */
     public function update(Request $request, $id)
     {
-        Post::findOrFail($id)->update($request->all()); 
-        return redirect('posts');
-    }
-    public function delete($id)
-    {
         //
-        $post = Post::findOrFail($id);
-        return view('posts.delete', compact('post'));
-        
     }
+
     /**
      * Remove the specified resource from storage.
      *
@@ -94,7 +112,6 @@ class PostsController extends Controller
      */
     public function destroy($id)
     {
-        Post::findOrFail($id)->delete(); 
-        return redirect('posts');
+        //
     }
 }
