@@ -9,13 +9,14 @@ use App\Filters\ApiFilter;
 class PostsFilter extends ApiFilter {
     //COLUMN
     protected $safeParms = [
-        'userId' => ['eq'],
+        //'userId' => ['eq'],
+        'id' => ['eq'],
         'title' => ['eq'],
         'content' => ['eq'],
     ];
 
     protected $columnMap = [
-        'userId' => 'user_id',
+        //'userId' => 'user_id',
     ];
 
     //OPERATOR
