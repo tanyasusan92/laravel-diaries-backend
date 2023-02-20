@@ -5,6 +5,7 @@ header('Access-Control-Allow-Methods: POST, GET, OPTIONS, PUT, DELETE');
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use App\Http\Controllers\v1\UsersController;
+use Illuminate\Support\Facades\Auth;
 
 /*
 |--------------------------------------------------------------------------
